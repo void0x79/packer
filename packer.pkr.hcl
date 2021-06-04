@@ -59,13 +59,21 @@ variable "owner-id" {
 }
 
 variable "most_recent_bool" {
-    type = bool 
+    type    = bool 
     default = true
 }
 
+variable "vault_version" {
+    type    = string
+    default = "1.7.5" 
+}
+
+variable "consul_version" {
+    type    = string
+    default = "1.9.5"
+}
 
 ################## IMAGE DEFINITION ####################
-
 ### NOTE: Multi environment build can be achieved in two methods. 
 ### Method 1 is simply by having credentials into each aws environment in the ~/.aws/credentials file. 
 ### From here, you will need to change line 15 & 16 to pair with the profile in the creds file. (Not my favorite method)
@@ -92,10 +100,20 @@ build {
     source "amazon-ebs.adp_rhel_image" {
         ami_name = "adp_vault_image"
     }
+
+    provisioner "ansible-local" {
+        playbook_file   = "./ansible/build/install.yml"
+        extra_arguments = ["--extra-vars", "\"vault_version=${var.vault_version}\"", "--tags", "vault"]
+    }
 }
 
 build {
     source "amazon-ebs.adp_rhel_image" {
         ami_name = "adp_consul_image"
+    }
+
+    provisioner "ansible-local" {
+        playbook_file = "./ansible/build/install.yml"
+        extra_arguments = ["--extra-vars", "\"consul_version=${var.consul_version}\"", "--tags", "consul"]
     }
 }
