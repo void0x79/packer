@@ -1,0 +1,24 @@
+# Packer will generate a inventory file on AMI provisioning.
+# No need to create one here.
+# Install & Verify Vault binaries. (Avoid Supply-Chain Attack)
+
+
+# TODO: Perform Checksum operation.
+
+---
+  - name: Upload Checksums to build.
+    ansible.builtin.copy:
+      src: ./integrity.sh
+      dest: $HOME
+      
+  - name: Install HashiVault via a logical install script.
+    script: ./install.sh vault "{{ vault_version }}"
+    tags:
+      - vault
+
+  - name: Install HashiConsul via a logical install script
+    script: ./install.sh consul "{{ consul_version }}"
+    tags:
+      - consul
+
+    
